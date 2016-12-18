@@ -8,10 +8,12 @@ import android.util.Log;
 
 import com.example.android.hurriyetapi.R;
 import com.example.android.hurriyetapi.adapter.NewsAdapter;
+import com.example.android.hurriyetapi.model.File;
 import com.example.android.hurriyetapi.model.News;
 import com.example.android.hurriyetapi.rest.ApiClient;
 import com.example.android.hurriyetapi.rest.ApiInterface;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -20,36 +22,49 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String API_KEY=""; //Buraya API Key'inizi yazınız.
+    private final static String API_KEY = "fea7ffb04b714c578314f166edd90597"; //Buraya API Key'inizi yazınız.
     private static final String TAG = MainActivity.class.getSimpleName();
 
     ApiInterface apiService;
     Call<List<News>> call;
     List<News> newses;
+    List<File> files;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final RecyclerView recyclerView= (RecyclerView) findViewById(R.id.news_recycler_view);
+        final RecyclerView recyclerView = (RecyclerView) findViewById(R.id.news_recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+
         apiService = ApiClient.getClient().create(ApiInterface.class);
-        call= apiService.getNews(API_KEY);
+        call = apiService.getNews(API_KEY);
 
-       call.enqueue(new Callback<List<News>>() {
-           @Override
-           public void onResponse(Call<List<News>> call, Response<List<News>> response) {
-               newses=response.body();
+        call.enqueue(new Callback<List<News>>() {
+            @Override
+            public void onResponse(Call<List<News>> call, Response<List<News>> response) {
+                newses = response.body();
 
-               recyclerView.setAdapter(new NewsAdapter(getApplicationContext(),newses,R.layout.list_item_news));
-           }
+                files = new ArrayList<File>();
 
-           @Override
-           public void onFailure(Call<List<News>> call, Throwable t) {
-               Log.e(TAG, t.toString());
-           }
-       });
+                for (int i = 0; i < newses.size(); i++) {
+                    File item = new File();
+
+                    item.setFileUrl(newses.get(i).getFiles().get(0).getFileUrl());
+                    item.setMetadata(newses.get(i).getFiles().get(0).getMetadata());
+
+                    files.add(item);
+                }
+
+                recyclerView.setAdapter(new NewsAdapter(getApplicationContext(), newses,files, R.layout.list_item_news));
+            }
+
+            @Override
+            public void onFailure(Call<List<News>> call, Throwable t) {
+                Log.e(TAG, t.toString());
+            }
+        });
     }
 }
