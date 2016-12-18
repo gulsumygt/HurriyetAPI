@@ -22,7 +22,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    private final static String API_KEY = "fea7ffb04b714c578314f166edd90597"; //Buraya API Key'inizi yazınız.
+    private final static String API_KEY = ""; //Buraya API Key'inizi yazınız.
     private static final String TAG = MainActivity.class.getSimpleName();
 
     ApiInterface apiService;
